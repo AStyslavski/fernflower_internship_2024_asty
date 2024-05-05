@@ -296,6 +296,59 @@ public class ClassWriter {
     return false;
   }
 
+  private static boolean isDefaultRecordAccessor(StructClass cl, StructMethod mt, TextBuffer code) {
+    if (cl.getRecordComponents() == null || 1 != code.countLines()) {
+      return false;
+    }
+
+    String name = mt.getName(), descriptor = mt.getDescriptor();
+    if (!descriptor.startsWith("()") || 2 == descriptor.length()) {
+      return false;
+    }
+    String descriptorWithoutFunAppendix = descriptor.substring(2);
+    StructField field = cl.getField(name, descriptorWithoutFunAppendix);
+
+    if (null == field) {
+      return false;
+    }
+    String str = code.toString().trim();
+    return str.startsWith("return this." + name + ";");
+  }
+
+  private static boolean isDefaultRecordConstructor(StructClass cl, StructMethod mt, TextBuffer code, boolean init) {
+    if (!init) {
+      return false;
+    }
+    List<StructRecordComponent> recordComponents = cl.getRecordComponents();
+    if (null == recordComponents) {
+      return false;
+    }
+    int numberOfComponents = recordComponents.size();
+    String descriptor = mt.getDescriptor();
+    int descriptorLen = descriptor.length();
+    if (descriptorLen != numberOfComponents + 3) {
+      return false;
+    }
+    if ('(' != descriptor.charAt(0) || ')' != descriptor.charAt(descriptorLen - 2) || 'V' != descriptor.charAt(descriptorLen - 1)) {
+      return false;
+    }
+
+    if (code.countLines() != numberOfComponents) {
+      return false;
+    }
+
+    String[] lines = code.getLines();
+
+    for(int i = 0; i < numberOfComponents; i++) {
+      String name = recordComponents.get(i).getName();
+      if(!lines[i].trim().equals("this." + name + " = " + name + ";")) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
     if (node.type == ClassNode.CLASS_ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
@@ -864,6 +917,10 @@ public class ClassWriter {
             hideMethod = code.length() == 0 &&
               (clInit || dInit || hideConstructor(node, !typeAnnotations.isEmpty(), init, throwsExceptions, paramCount, flags)) ||
               isSyntheticRecordMethod(cl, mt, code);
+            if (DecompilerContext.getOption(IFernflowerPreferences.INTERN_FEATURE)) {
+              hideMethod |= isDefaultRecordAccessor(cl, mt, code);
+              hideMethod |= isDefaultRecordConstructor(cl, mt, code, init);
+            }
 
             buffer.append(code);
 

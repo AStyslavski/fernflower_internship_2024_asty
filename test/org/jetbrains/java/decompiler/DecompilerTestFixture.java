@@ -57,6 +57,7 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
     options.put(IFernflowerPreferences.LITERALS_AS_IS, "1");
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
+    options.put(IFernflowerPreferences.INTERN_FEATURE, "1");
     options.putAll(customOptions);
 
     if (cancellationManager == null) {

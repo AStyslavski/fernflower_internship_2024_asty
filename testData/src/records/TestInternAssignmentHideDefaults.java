@@ -1,0 +1,3 @@
+package records;
+
+public record TestInternAssignmentHideDefaults(int x, int y) {}

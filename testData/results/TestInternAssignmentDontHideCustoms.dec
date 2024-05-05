@@ -1,0 +1,62 @@
+package records;
+
+public record TestInternAssignmentDontHideCustoms(int x, int y) {
+   public TestInternAssignmentDontHideCustoms(int x, int y) {
+      this.x = x;// 5
+      this.y = y;// 6
+      System.out.println("Hello there!");// 7
+   }// 8
+
+   public TestInternAssignmentDontHideCustoms(int var1) {
+      this(var1, 1);// 11
+   }// 12
+
+   public int x() {
+      return this.x + 1;// 14
+   }
+
+   public int y() {
+      return this.x;// 18
+   }
+}
+
+class 'records/TestInternAssignmentDontHideCustoms' {
+   method '<init> (II)V' {
+      6      4
+      b      5
+      e      6
+      11      6
+      13      6
+      16      7
+   }
+
+   method '<init> (I)V' {
+      2      10
+      3      10
+      6      11
+   }
+
+   method 'x ()I' {
+      1      14
+      4      14
+      5      14
+      6      14
+   }
+
+   method 'y ()I' {
+      1      18
+      4      18
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+11 <-> 11
+12 <-> 12
+14 <-> 15
+18 <-> 19
+Not mapped:
+4

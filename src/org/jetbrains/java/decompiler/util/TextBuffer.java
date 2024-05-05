@@ -280,4 +280,7 @@ public class TextBuffer {
       }
     }
   }
+  public String[] getLines() {
+    return myStringBuilder.toString().split(myLineSeparator);
+  }
 }
